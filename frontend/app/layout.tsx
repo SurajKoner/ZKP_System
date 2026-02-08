@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -17,8 +17,14 @@ export const metadata: Metadata = {
   title: "MediGuard - Healthcare Privacy Protocol",
   description: "Verify medical credentials with zero-knowledge proofs.",
   manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
   themeColor: "#00A86B",
-  viewport: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
