@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = ""; // Uses Next.js rewrites to proxy to backend
 
 export const api = {
     issuer: {

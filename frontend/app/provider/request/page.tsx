@@ -29,7 +29,7 @@ export default function VerificationRequestPage() {
                 value: "COVID"
             };
 
-            const res = await fetch("http://localhost:8000/api/provider/request", {
+            const res = await fetch("/api/provider/request", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

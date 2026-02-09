@@ -35,7 +35,7 @@ export default function IssuePage() {
                 credential_type: formData.credential_type // add to attributes payload
             };
 
-            const res = await fetch("http://localhost:8000/api/hospital/issue", {
+            const res = await fetch("/api/hospital/issue", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

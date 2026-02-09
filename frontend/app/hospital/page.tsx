@@ -24,7 +24,7 @@ export default function HospitalPortal() {
         setLoading(true);
         try {
             // Direct fetch to match updated backend path
-            const res = await fetch("http://localhost:8000/api/hospital/init", {
+            const res = await fetch("/api/hospital/init", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

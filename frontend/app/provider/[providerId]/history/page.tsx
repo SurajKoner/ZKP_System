@@ -22,7 +22,7 @@ export default function HistoryPage() {
         // Fetch Audit History
         const fetchHistory = async () => {
             try {
-                const res = await fetch(`http://localhost:8000/api/provider/${providerId}/audit`);
+                const res = await fetch(`/api/provider/${providerId}/audit`);
                 if (!res.ok) throw new Error("Failed to fetch history");
                 const data = await res.json();
                 setHistory(data.verifications || []);

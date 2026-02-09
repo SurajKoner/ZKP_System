@@ -18,7 +18,7 @@ export default function VerifyRequestPage() {
         // 1. Fetch request details
         if (!requestId) return;
 
-        fetch(`http://localhost:8000/api/provider/request/${requestId}`)
+        fetch(`/api/provider/request/${requestId}`)
             .then(res => res.json())
             .then(setData)
             .catch(console.error)
@@ -26,7 +26,7 @@ export default function VerifyRequestPage() {
 
         // 2. Poll for verification status (Simulation)
         const interval = setInterval(() => {
-            fetch(`http://localhost:8000/api/provider/verify/${requestId}/status`) // Poll status endpoint
+            fetch(`/api/provider/verify/${requestId}/status`) // Poll status endpoint
                 .then(res => res.json())
                 .then(statusData => {
                     if (statusData.verified) {

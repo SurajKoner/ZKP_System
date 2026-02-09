@@ -25,7 +25,7 @@ export default function VerifierDashboard() {
                 // Since this uses the same backend endpoints as existing ones, let's use the fetch directly
                 // However, we should properly add getAuditLog to api.verifier in api.ts first
                 // For now, we manually fetch to decouple strict api.ts changes in this step
-                const res = await fetch("http://localhost:8000/api/verify/audit-log");
+                const res = await fetch("/api/verify/audit-log");
                 const data = await res.json();
 
                 setRecentLogs(data.verifications);

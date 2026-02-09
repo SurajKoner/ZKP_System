@@ -26,7 +26,7 @@ export default function ProvePage() {
 
         const fetchRequest = async () => {
             try {
-                const res = await fetch(`http://localhost:8000/api/provider/request/${requestId}`);
+                const res = await fetch(`/api/provider/request/${requestId}`);
                 if (!res.ok) throw new Error("Request not found");
                 const data = await res.json();
                 setRequest(data);
@@ -57,7 +57,7 @@ export default function ProvePage() {
             // For demo, we are mocking the proof generation here but using the real backend endpoint to verify
             // In reality, this would use BBS WASM to generate the proof cryptographically
 
-            const verificationRes = await fetch("http://localhost:8000/api/provider/verify", {
+            const verificationRes = await fetch("/api/provider/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

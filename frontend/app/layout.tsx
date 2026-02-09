@@ -17,6 +17,14 @@ export const metadata: Metadata = {
   title: "MediGuard - Healthcare Privacy Protocol",
   description: "Verify medical credentials with zero-knowledge proofs.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "MediGuard",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
