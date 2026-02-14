@@ -142,16 +142,18 @@ export default function IssuePage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex flex-col items-center gap-6">
-                                <div className="bg-white p-4 rounded-xl shadow-sm border">
+                                <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-neutral-100">
                                     <QRCodeSVG value={result.qr_code_data} size={250} level={"L"} includeMargin={true} />
+                                    <p className="text-center font-bold text-neutral-900 mt-4">Scan to Receive</p>
+                                    <p className="text-center text-xs text-neutral-400">"Show this to patient"</p>
                                 </div>
-                                <p className="text-center text-sm text-neutral-500">
-                                    Scan this QR code with the MediGuard Patient Wallet to import the credential.
-                                </p>
-                                <Button variant="outline" onClick={handleCopy} className="w-full flex gap-2">
-                                    {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                    {copied ? "Copied!" : "Copy URI to Clipboard"}
-                                </Button>
+                                <div className="w-full space-y-2">
+                                    <Button variant="outline" onClick={handleCopy} className="w-full flex gap-2">
+                                        {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                        {copied ? "Copied!" : "Copy Link"}
+                                    </Button>
+                                    <Button className="w-full" onClick={() => setResult(null)}>Issue Another</Button>
+                                </div>
                             </CardContent>
                         </Card>
                     ) : (
@@ -160,6 +162,7 @@ export default function IssuePage() {
                                 <ShieldCheck className="w-8 h-8 text-neutral-300" />
                             </div>
                             <p>Generated credential QR will appear here</p>
+                            <p className="text-xs mt-2 text-neutral-300">"Show to patient to receive credential"</p>
                         </div>
                     )}
                 </div>

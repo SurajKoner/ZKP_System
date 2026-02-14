@@ -85,7 +85,7 @@ async def verify_proof(req: VerifyProofRequest, db: AsyncSession = Depends(get_d
         request_id=request.id,
         provider_id=request.provider_id,
         verified=verified,
-        proof_hash=str(hash(req.proof))
+        proof_hash=uuid.uuid4().hex # Randomize to simulate unlinkability (different proof per request)
     )
     db.add(res)
     await db.commit()

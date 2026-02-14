@@ -106,15 +106,30 @@ export default function ProvePage() {
                         </div>
                     </div>
 
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-start gap-3">
-                        <TriangleAlert className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <div className="space-y-1">
-                            <p className="text-sm font-semibold text-blue-800">Privacy Check</p>
-                            <ul className="text-xs text-blue-700 list-disc list-inside space-y-1">
-                                <li>Your name will NOT be revealed</li>
-                                <li>Credential issuer hidden</li>
-                                <li>Only "Yes/No" result shared</li>
-                            </ul>
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex flex-col gap-3">
+                        <div className="flex items-center gap-2 text-blue-800 font-semibold mb-1">
+                            <ShieldCheck className="w-5 h-5" />
+                            <span>Privacy Protection</span>
+                        </div>
+
+                        <div className="space-y-3 text-sm">
+                            <div>
+                                <p className="font-semibold text-amber-600 mb-1">⚠️ This will reveal:</p>
+                                <ul className="list-disc list-inside text-neutral-600 pl-2">
+                                    <li><strong className="text-neutral-900">NOTHING</strong> about your identity</li>
+                                    <li>Only that you received a vaccine</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p className="font-semibold text-green-600 mb-1">✓ This will NOT reveal:</p>
+                                <ul className="list-disc list-inside text-neutral-600 pl-2">
+                                    <li>Your Name ({matchingCred?.attributes?.patient_name || "Alice"})</li>
+                                    <li>Vaccine Type ({matchingCred?.attributes?.vaccination_type || "COVID-19"})</li>
+                                    <li>Date Administered</li>
+                                    <li>Hospital Name</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
 

@@ -34,33 +34,55 @@ export default function QRScanner() {
 
     const handleScan = (data: string) => {
         try {
-            const url = new URL(data);
-            const protocol = url.protocol;
+            // Some scanners might return just the content, others might wrap it.
+            // We expect a URL starting with mediguard://
+            let urlObj: URL;
+            try {
+                urlObj = new URL(data);
+            } catch {
+                // Not a valid URL
+                throw new Error("Not a valid MediGuard code");
+            }
 
-            if (protocol === "mediguard:") {
-                const type = url.searchParams.get("type"); // credential or verify
-                const payload = url.searchParams.get("payload");
-                const reqId = url.searchParams.get("req");
+            if (urlObj.protocol !== "mediguard:") {
+                throw new Error("Invalid protocol. Must be mediguard://");
+            }
 
-                if (url.pathname.includes("credential")) {
-                    // Handle Credential Import
-                    const credential = JSON.parse(payload || "{}");
-                    const existing = JSON.parse(localStorage.getItem("mediguard_credentials") || "[]");
+            if (urlObj.pathname.includes("credential") || urlObj.host === "credential") {
+                // Handle Credential Import
+                const payload = urlObj.searchParams.get("payload");
+                if (!payload) throw new Error("No payload found");
+
+                const credential = JSON.parse(payload);
+                // Simple validation
+                if (!credential.type || !credential.iss || !credential.sig) {
+                    throw new Error("Invalid credential format");
+                }
+
+                const existing = JSON.parse(localStorage.getItem("mediguard_credentials") || "[]");
+                // Avoid duplicates
+                if (!existing.some((c: any) => c.id === credential.id)) {
                     existing.push({ ...credential, issuedAt: new Date().toISOString() });
                     localStorage.setItem("mediguard_credentials", JSON.stringify(existing));
-
-                    toast({ title: "Credential Imported", description: `Added ${credential.type}` });
-                    router.push("/wallet");
-                } else if (url.pathname.includes("verify")) {
-                    // Handle Verification Request
-                    router.push(`/wallet/prove?req=${reqId}`);
+                    toast({ title: "Success", description: `Added ${credential.type} credential` });
+                } else {
+                    toast({ title: "Info", description: "Credential already exists" });
                 }
+
+                router.push("/wallet");
+            } else if (urlObj.pathname.includes("verify") || urlObj.host === "verify") {
+                // Handle Verification Request
+                const reqId = urlObj.searchParams.get("req");
+                if (!reqId) throw new Error("No request ID found");
+
+                router.push(`/wallet/prove?req=${reqId}`);
             } else {
-                throw new Error("Invalid QR Code");
+                throw new Error("Unknown MediGuard action");
             }
-        } catch (e) {
-            toast({ title: "Error", description: "Invalid QR Code format", variant: "destructive" });
-            setScanning(true); // Retry
+        } catch (e: any) {
+            toast({ title: "Invalid Code", description: e.message, variant: "destructive" });
+            // Small delay before rescanning to avoid alert loop
+            setTimeout(() => setScanning(true), 1500);
         }
     };
 
