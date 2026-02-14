@@ -4,8 +4,24 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Loader2, ShieldCheck, TriangleAlert } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+
+interface RequestData {
+    provider_name: string;
+    predicate_human_readable: string;
+    predicate: {
+        attribute: string;
+    };
+}
+
+interface Credential {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    attributes: Record<string, any>;
+    type: string;
+    issuedAt: string;
+    pk?: string;
+}
 
 export default function ProvePage() {
     const params = useSearchParams();
@@ -13,8 +29,8 @@ export default function ProvePage() {
     const router = useRouter();
     const { toast } = useToast();
 
-    const [request, setRequest] = useState<any>(null);
-    const [matchingCred, setMatchingCred] = useState<any>(null);
+    const [request, setRequest] = useState<RequestData | null>(null);
+    const [matchingCred, setMatchingCred] = useState<Credential | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -33,14 +49,14 @@ export default function ProvePage() {
 
                 // 2. Select Matching Credential
                 const creds = JSON.parse(localStorage.getItem("mediguard_credentials") || "[]");
-                const match = creds.find(c => {
+                const match = creds.find((c: Credential) => {
                     // Basic matching based on predicate attribute checking (e.g. vaccination type)
                     const predAttr = data.predicate.attribute;
                     return c.attributes[predAttr] !== undefined;
                 });
 
                 setMatchingCred(match);
-            } catch (e) {
+            } catch {
                 toast({ title: "Error", description: "Request expired" });
                 router.push("/wallet");
             } finally {
@@ -48,7 +64,7 @@ export default function ProvePage() {
             }
         };
         fetchRequest();
-    }, [requestId, router]);
+    }, [requestId, router, toast]);
 
     const handleProve = async () => {
         setLoading(true);
@@ -64,7 +80,7 @@ export default function ProvePage() {
                     request_id: requestId,
                     proof: "mock_zkp_proof_payload_xyz", // Must contain 'mock_zkp' for backend mock validation
                     revealed_attributes: {}, // Zero-Knowledge: reveal nothing except predicate satisfaction
-                    issuer_public_key: matchingCred.pk // From stored credential
+                    issuer_public_key: matchingCred?.pk // From stored credential
                 })
             });
 
@@ -79,8 +95,9 @@ export default function ProvePage() {
             } else {
                 throw new Error("Proof rejected by provider");
             }
-        } catch (e: any) {
-            toast({ title: "Error", description: e.message, variant: "destructive" });
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Unknown error";
+            toast({ title: "Error", description: message, variant: "destructive" });
         } finally {
             setLoading(false);
         }

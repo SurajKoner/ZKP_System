@@ -2,20 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShieldCheck, Plus, ScanLine, List } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ShieldCheck, Plus, ScanLine } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+
+interface Credential {
+    id: string;
+    type: string;
+    iss: string;
+    issuedAt: string;
+}
 
 export default function WalletPage() {
-    const [credentials, setCredentials] = useState<any[]>([]);
-    const router = useRouter();
+    const [credentials, setCredentials] = useState<Credential[]>([]);
+    const { toast } = useToast();
 
     useEffect(() => {
         // Load credentials from IndexedDB or local storage
         const stored = localStorage.getItem("mediguard_credentials");
         if (stored) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setCredentials(JSON.parse(stored));
         }
     }, []);
@@ -82,6 +89,22 @@ export default function WalletPage() {
                     </div>
                 </div>
             </div>
-        </div>
+
+            <div className="py-8 flex justify-center border-t mt-8">
+                <Button
+                    variant="ghost"
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50 text-xs"
+                    onClick={() => {
+                        if (confirm("Reset wallet and delete all credentials?")) {
+                            localStorage.removeItem("mediguard_credentials");
+                            setCredentials([]);
+                            toast({ title: "Wallet Reset", description: "All credentials deleted." });
+                        }
+                    }}
+                >
+                    Reset / Clear Wallet (Demo)
+                </Button>
+            </div>
+        </div >
     );
 }

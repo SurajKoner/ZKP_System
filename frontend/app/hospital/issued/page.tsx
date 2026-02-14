@@ -6,14 +6,28 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 
+
+interface Credential {
+    id: string;
+    type: string;
+    issuedAt: string;
+}
+
 export default function IssuedCredentialsPage() {
-    const [credentials, setCredentials] = useState<any[]>([]);
+    const [credentials, setCredentials] = useState<Credential[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Ideally this would fetch from a real backend endpoint listing issuedcreds
-        // For now we mock it or fetch from the stats endpoint if available
-        setLoading(false);
+        // ideally this would fetch from a real backend endpoint listing issuedcreds
+        // for now we mock it or fetch from the stats endpoint if available
+        const timer = setTimeout(() => {
+            setCredentials([
+                { id: "mock-1", type: "Vaccination", issuedAt: new Date().toISOString() }
+            ]);
+            setLoading(false);
+        }, 500);
+
+        return () => clearTimeout(timer);
     }, []);
 
     return (

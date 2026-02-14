@@ -10,6 +10,11 @@ import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "@/components/ui/use-toast";
 import { Copy, CheckCircle, ShieldCheck } from "lucide-react";
 
+
+interface IssueResult {
+    qr_code_data: string;
+}
+
 export default function IssuePage() {
     const [formData, setFormData] = useState({
         credential_type: "vaccination",
@@ -21,7 +26,7 @@ export default function IssuePage() {
         hospital_id: "apollo_mumbai_001"
     });
 
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<IssueResult | null>(null);
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
     const { toast } = useToast();
@@ -50,7 +55,7 @@ export default function IssuePage() {
             setResult(data);
             toast({ title: "Success", description: "Credential issued successfully!" });
 
-        } catch (e) {
+        } catch {
             toast({ title: "Error", description: "Failed to issue credential", variant: "destructive" });
         } finally {
             setLoading(false);
@@ -145,7 +150,7 @@ export default function IssuePage() {
                                 <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-neutral-100">
                                     <QRCodeSVG value={result.qr_code_data} size={250} level={"L"} includeMargin={true} />
                                     <p className="text-center font-bold text-neutral-900 mt-4">Scan to Receive</p>
-                                    <p className="text-center text-xs text-neutral-400">"Show this to patient"</p>
+                                    <p className="text-center text-xs text-neutral-400">&quot;Show this to patient&quot;</p>
                                 </div>
                                 <div className="w-full space-y-2">
                                     <Button variant="outline" onClick={handleCopy} className="w-full flex gap-2">
@@ -162,7 +167,7 @@ export default function IssuePage() {
                                 <ShieldCheck className="w-8 h-8 text-neutral-300" />
                             </div>
                             <p>Generated credential QR will appear here</p>
-                            <p className="text-xs mt-2 text-neutral-300">"Show to patient to receive credential"</p>
+                            <p className="text-xs mt-2 text-neutral-300">&quot;Show to patient to receive credential&quot;</p>
                         </div>
                     )}
                 </div>

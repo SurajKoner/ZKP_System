@@ -9,13 +9,20 @@ import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
+interface HistoryEntry {
+    verification_id: string;
+    verified: boolean;
+    predicate: string;
+    timestamp: string;
+}
+
 export default function HistoryPage() {
     const params = useParams();
     const providerId = params.providerId as string;
     const router = useRouter();
     const { toast } = useToast();
 
-    const [history, setHistory] = useState<any[]>([]);
+    const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -26,10 +33,11 @@ export default function HistoryPage() {
                 if (!res.ok) throw new Error("Failed to fetch history");
                 const data = await res.json();
                 setHistory(data.verifications || []);
-            } catch (e: any) {
+            } catch (e) {
+                const message = e instanceof Error ? e.message : "Could not retrieve audit logs";
                 toast({
                     title: "Error Loading History",
-                    description: e.message || "Could not retrieve audit logs",
+                    description: message,
                     variant: "destructive"
                 });
             } finally {

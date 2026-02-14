@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShieldCheck, Zap, Lock, Database } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Zap, Lock } from "lucide-react";
 
 export default function BenchmarksPage() {
-    const [metrics, setMetrics] = useState({
+    const [metrics] = useState({
         proofGeneration: 127,
         proofVerification: 78,
         proofSize: 384,
@@ -18,7 +16,7 @@ export default function BenchmarksPage() {
             <div className="mb-8 text-center md:text-left">
                 <h1 className="text-4xl font-extrabold tracking-tight mb-2">Performance Benchmarks</h1>
                 <p className="text-lg text-muted-foreground">
-                    Real-time metrics for MediGuard's ZK-Proof System running on BBS+ Signatures.
+                    Real-time metrics for MediGuard&apos;s ZK-Proof System running on BBS+ Signatures.
                 </p>
             </div>
 

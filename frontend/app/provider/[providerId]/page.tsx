@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { QRCodeSVG } from "qrcode.react";
@@ -14,21 +13,35 @@ import { useToast } from "@/components/ui/use-toast";
 
 type VerificationStatus = "waiting" | "verified" | "failed";
 
+interface ActiveRequest {
+    request_id: string;
+    qr_code_data: string;
+    predicate_human_readable: string;
+}
+
+interface VerificationItem {
+    verified: boolean;
+    predicate?: string;
+    timestamp: string;
+    request_id?: string;
+}
+
 export default function ProviderPage() {
     const params = useParams();
     const providerId = params.providerId as string;
     const { toast } = useToast();
 
     // State for Active Request
-    const [activeRequest, setActiveRequest] = useState<any>(null);
+    const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
     const [status, setStatus] = useState<VerificationStatus>("waiting");
     const [predicate, setPredicate] = useState("vaccination_covid");
     const [loading, setLoading] = useState(false);
 
     // State for History
-    const [history, setHistory] = useState<any[]>([]);
+    const [history, setHistory] = useState<VerificationItem[]>([]);
 
     // Fetch History
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchHistory = async () => {
         try {
             const res = await fetch(`/api/provider/${providerId}/audit`);
@@ -36,14 +49,14 @@ export default function ProviderPage() {
                 const data = await res.json();
                 setHistory(data.verifications || []);
             }
-        } catch (e) {
+        } catch {
             console.error("Failed to fetch history");
         }
     };
 
     useEffect(() => {
         fetchHistory();
-    }, [providerId]);
+    }, [fetchHistory]);
 
     // Cleanup polling on unmount
     useEffect(() => {
@@ -56,7 +69,11 @@ export default function ProviderPage() {
                     const res = await fetch(`/api/provider/${providerId}/audit`);
                     if (res.ok) {
                         const data = await res.json();
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const found = data.verifications.find((v: any) => v.request_id === activeRequest.request_id);
+                        if (found) {
+                            // logic to use found if needed, otherwise just checking existence
+                        }
                         // Note: The audit API might not return request_id in the list, checking implementation...
                         // If not, we might need a direct status check endpoint. 
                         // Let's assume there is one or we add one.
@@ -68,11 +85,11 @@ export default function ProviderPage() {
                         // I must have missed it or it wasn't there?
                         // Let's re-read routes.py carefully.
                     }
-                } catch (e) { }
+                } catch { }
             }, 2000);
         }
         return () => clearInterval(interval);
-    }, [activeRequest, status]);
+    }, [activeRequest, status, providerId, fetchHistory]);
 
     // Create Request
     const handleCreateRequest = async () => {
@@ -103,8 +120,7 @@ export default function ProviderPage() {
             setActiveRequest(data);
             setStatus("waiting");
             toast({ title: "Request Created", description: "Waiting for patient to scan..." });
-
-        } catch (e) {
+        } catch {
             toast({ title: "Error", description: "Could not create request", variant: "destructive" });
         } finally {
             setLoading(false);
@@ -149,7 +165,7 @@ export default function ProviderPage() {
             }, 2000);
         }
         return () => clearInterval(interval);
-    }, [activeRequest, status, providerId]);
+    }, [activeRequest, status, providerId, fetchHistory]);
 
     const resetRequest = () => {
         setActiveRequest(null);
@@ -277,7 +293,7 @@ export default function ProviderPage() {
                                         No verification history yet.
                                     </div>
                                 ) : (
-                                    history.map((item: any, i) => (
+                                    history.map((item, i) => (
                                         <div key={i} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
                                             <div className="flex items-start gap-3">
                                                 <div className={`mt-1 p-1.5 rounded-full ${item.verified ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>

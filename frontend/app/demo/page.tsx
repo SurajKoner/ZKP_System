@@ -1,25 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/services/api";
 import { cryptoService } from "@/services/crypto";
-import { Loader2, CheckCircle, ArrowRight, Play, RefreshCw } from "lucide-react";
+import { Loader2, CheckCircle, Play, RefreshCw } from "lucide-react";
+
+interface DemoState {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    credential?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    proof?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    verification?: any;
+}
 
 export default function DemoWalkthrough() {
     const [step, setStep] = useState(0);
     const [logs, setLogs] = useState<string[]>([]);
 
-    const addLog = (msg: string) => setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+    const addLog = useCallback((msg: string) => {
+        setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+    }, []);
 
-    const [demoState, setDemoState] = useState<{
-        credential?: any;
-        proof?: any;
-        verification?: any;
-    }>({});
+    const demoData = useRef<DemoState>({});
 
-    const runStep = async (currentStep: number) => {
+    const runStep = useCallback(async (currentStep: number) => {
         try {
             if (currentStep === 1) {
                 addLog("Step 1: Requesting Credential from Issuer...");
@@ -36,7 +43,7 @@ export default function DemoWalkthrough() {
                     issuanceDate: new Date().toISOString()
                 };
 
-                setDemoState(prev => ({ ...prev, credential }));
+                demoData.current.credential = credential;
                 addLog(`Credential Received! Signed with BBS+. Signature: ${result.credential.signature.substring(0, 20)}...`);
                 setStep(2);
             }
@@ -52,12 +59,12 @@ export default function DemoWalkthrough() {
 
                 const nonce = request.requestId; // Use request ID as nonce in this flow
                 const proof = await cryptoService.generateProof(
-                    demoState.credential,
+                    demoData.current.credential,
                     ["age"], // Only reveal age
                     nonce
                 );
 
-                setDemoState(prev => ({ ...prev, proof: { ...proof, nonce, requestId: request.requestId } }));
+                demoData.current.proof = { ...proof, nonce, requestId: request.requestId };
                 addLog("Proof Generated! Zero-knowledge proof created locally.");
                 addLog(`Revealing attributes: ${Object.keys(proof.revealed_attributes).join(", ")}`);
                 setStep(3);
@@ -67,13 +74,13 @@ export default function DemoWalkthrough() {
                 addLog("Step 3: Sending Proof to Verifier...");
 
                 const verification = await api.verifier.submitProof(
-                    demoState.proof.requestId,
-                    JSON.stringify(demoState.proof),
-                    demoState.proof.revealed_attributes,
-                    demoState.credential.issuerPublicKey
+                    demoData.current.proof.requestId,
+                    JSON.stringify(demoData.current.proof),
+                    demoData.current.proof.revealed_attributes,
+                    demoData.current.credential.issuerPublicKey
                 );
 
-                setDemoState(prev => ({ ...prev, verification }));
+                demoData.current.verification = verification;
                 if (verification.verified) {
                     addLog("Step 4: Verification SUCCESS!");
                     addLog(`Verifier checked proof without seeing name. Verified at: ${verification.timestamp}`);
@@ -86,14 +93,14 @@ export default function DemoWalkthrough() {
         } catch (e) {
             addLog(`Error: ${e}`);
         }
-    };
+    }, [addLog]);
 
     useEffect(() => {
         if (step > 0 && step < 4) {
             const timer = setTimeout(() => runStep(step), 1500);
             return () => clearTimeout(timer);
         }
-    }, [step]);
+    }, [step, runStep]);
 
     return (
         <div className="container mx-auto p-8 max-w-3xl">
@@ -130,7 +137,7 @@ export default function DemoWalkthrough() {
                                 {step === 4 && <CheckCircle className="w-4 h-4 text-green-500" />}
                                 {step === 3 && <Loader2 className="w-4 h-4 animate-spin text-pink-500" />}
                             </h3>
-                            <p className="text-sm text-neutral-500">Verifier checks proof signature valid & Age > 21.</p>
+                            <p className="text-sm text-neutral-500">Verifier checks proof signature valid & Age &gt; 21.</p>
                         </CardContent>
                     </Card>
 
@@ -141,7 +148,7 @@ export default function DemoWalkthrough() {
                     )}
 
                     {step === 4 && (
-                        <Button onClick={() => { setStep(0); setLogs([]); setDemoState({}); }} variant="outline" className="w-full">
+                        <Button onClick={() => { setStep(0); setLogs([]); demoData.current = {}; }} variant="outline" className="w-full">
                             <RefreshCw className="mr-2 w-4 h-4" /> Restart
                         </Button>
                     )}

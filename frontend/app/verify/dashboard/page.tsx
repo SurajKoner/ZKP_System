@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ShieldCheck, Calendar, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
@@ -14,8 +13,13 @@ interface LogEntry {
     timestamp: string;
 }
 
+interface Stats {
+    total: number;
+    successRate: string | number;
+}
+
 export default function VerifierDashboard() {
-    const [stats, setStats] = useState<any>({});
+    const [stats, setStats] = useState<Stats>({ total: 0, successRate: 0 });
     const [recentLogs, setRecentLogs] = useState<LogEntry[]>([]);
     const [loading, setLoading] = useState(true);
 

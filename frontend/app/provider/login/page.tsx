@@ -57,8 +57,8 @@ export default function ProviderLoginPage() {
                     </form>
 
                     <div className="mt-4 text-center text-sm">
-                        <span className="text-neutral-500">Don't have an ID? </span>
-                        <span className="text-primary cursor-pointer hover:underline" onClick={() => setProviderId("demo_provider")}>Use 'demo_provider'</span>
+                        <span className="text-neutral-500">Don&apos;t have an ID? </span>
+                        <span className="text-primary cursor-pointer hover:underline" onClick={() => setProviderId("demo_provider")}>Use &apos;demo_provider&apos;</span>
                     </div>
                 </CardContent>
             </Card>

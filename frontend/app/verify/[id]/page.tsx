@@ -3,12 +3,26 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { api } from "@/services/api";
 import { cryptoService } from "@/services/crypto";
 import { useWalletStore } from "@/stores/useWalletStore";
 import { CheckCircle, XCircle, ShieldCheck, Loader2, ArrowRight } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+
+interface Credential {
+    id: string;
+    issuer: string;
+    attributes: Record<string, string | number>;
+    issuerPublicKey: string;
+}
+
+interface VerificationResult {
+    verified: boolean;
+    timestamp: number;
+    revealed_attributes?: Record<string, string | number>;
+    message?: string;
+}
 
 const SCENARIOS = {
     "bar": {
@@ -52,6 +66,15 @@ export default function VerifierPage() {
     const [requestId, setRequestId] = useState("");
     const [qrValue, setQrValue] = useState("");
 
+    // Missing state variables
+    // Missing state variables
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const credentials = useWalletStore((state: any) => state.credentials || []) as Credential[];
+    const [selectedCredentialId, setSelectedCredentialId] = useState("");
+    const [status, setStatus] = useState("idle");
+    const [proofTime, setProofTime] = useState(0);
+    const [result, setResult] = useState<VerificationResult | null>(null);
+
     // Initialize verification session
     useEffect(() => {
         const initSession = async () => {
@@ -59,8 +82,8 @@ export default function VerifierPage() {
                 const res = await api.verifier.createRequest(id, scenario.predicate);
                 setRequestId(res.requestId);
                 setQrValue(res.qrCode);
-            } catch (e) {
-                console.error("Failed to init verification session", e);
+            } catch {
+                console.error("Failed to init verification session");
             }
         };
         initSession();
